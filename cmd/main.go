@@ -13,7 +13,7 @@ func main() {
 
 	flag.Parse()
 
-	log.Printf("server will listen on: %s\n", *addr)
+	log.Printf("server listens on: %s\n", *addr)
 
 	cito.RunServer(*addr)
 }

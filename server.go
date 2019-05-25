@@ -8,9 +8,11 @@ import (
 	"os/signal"
 	"syscall"
 	"time"
+
+	"github.com/minio/minio-go"
 )
 
-func RunServer(addr string) {
+func RunServer(mc *minio.Client, addr string) {
 
 	mux := http.NewServeMux()
 	mux.HandleFunc("/", fetch)

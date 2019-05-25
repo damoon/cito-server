@@ -2,6 +2,7 @@ package cito
 
 import (
 	"fmt"
+	"log"
 
 	"github.com/minio/minio-go"
 )
@@ -20,6 +21,19 @@ func EnsureBucket(mc *minio.Client, bucket, location string) error {
 	if err != nil {
 		return fmt.Errorf("failed to create bucket %s: %s", bucket, err)
 	}
+	log.Printf("created bucket %s\n", bucket)
 
 	return nil
+}
+
+func objectExists(mc *minio.Client, bucket, object string) (bool, error) {
+	_, err := mc.StatObject(bucket, object, minio.StatObjectOptions{})
+	if err != nil {
+		errResponse := minio.ToErrorResponse(err)
+		if errResponse.Code == "NoSuchKey" {
+			return false, nil
+		}
+		return false, err
+	}
+	return true, nil
 }

@@ -12,17 +12,17 @@ import (
 	"github.com/minio/minio-go"
 )
 
-func RunServer(mc *minio.Client, addr string) {
+func RunServer(mc *minio.Client, bucket, addr string) {
 
 	mux := http.NewServeMux()
-	mux.HandleFunc("/", fetch)
+	mux.HandleFunc("/", fetch(mc, bucket))
 	mux.HandleFunc("/healthz", healthz)
 
 	server := &http.Server{
 		Addr:         addr,
 		Handler:      mux,
-		ReadTimeout:  1800 * time.Second,
-		WriteTimeout: 1800 * time.Second,
+		ReadTimeout:  20 * time.Second,
+		WriteTimeout: 20 * time.Second,
 	}
 
 	// wait for an exit signal

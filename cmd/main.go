@@ -29,6 +29,9 @@ func main() {
 		log.Fatalln(err)
 	}
 
-	cito.EnsureBucket(minioClient, *bucket, *location)
-	cito.RunServer(minioClient, *addr)
+	err = cito.EnsureBucket(minioClient, *bucket, *location)
+	if err != nil {
+		log.Fatalln(err)
+	}
+	cito.RunServer(minioClient, *bucket, *addr)
 }

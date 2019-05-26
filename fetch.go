@@ -4,29 +4,17 @@ import (
 	"fmt"
 	"io"
 	"log"
-	"net"
 	"net/http"
 	"os"
 	"strings"
-	"time"
 
 	"github.com/minio/minio-go"
 )
 
-var netClient = &http.Client{
-	Timeout: time.Second * 20,
-	Transport: &http.Transport{
-		Dial: (&net.Dialer{
-			Timeout: 5 * time.Second,
-		}).Dial,
-		TLSHandshakeTimeout: 5 * time.Second,
-	},
-}
-
-func fetch(mc *minio.Client, bucket string) func(w http.ResponseWriter, r *http.Request) {
+func fetch(hc *http.Client, mc *minio.Client, bucket string) func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
 		u := ""
-		switch true {
+		switch {
 		case strings.HasPrefix(r.URL.Path, "/http/"):
 			u = fmt.Sprintf("http://%s", strings.TrimPrefix(r.URL.Path, "/http/"))
 		case strings.HasPrefix(r.URL.Path, "/https/"):
@@ -50,7 +38,7 @@ func fetch(mc *minio.Client, bucket string) func(w http.ResponseWriter, r *http.
 				log.Printf("fetching %s\n", u)
 			}
 
-			resp, err := netClient.Get(u)
+			resp, err := hc.Get(u)
 			if err != nil {
 				w.WriteHeader(http.StatusInternalServerError)
 				log.Printf("fetching %s failed: %s\n", u, err)
@@ -64,6 +52,12 @@ func fetch(mc *minio.Client, bucket string) func(w http.ResponseWriter, r *http.
 				return
 			}
 
+			// TODO: use local directory as cache, limit local cache to x MiB
+
+			// TODO: upload to s3 after serving request
+
+			// TODO: gc s3
+
 			_, err = mc.PutObjectWithContext(r.Context(), bucket, o, resp.Body, resp.ContentLength, minio.PutObjectOptions{})
 			if err != nil {
 				w.WriteHeader(http.StatusInternalServerError)
@@ -72,6 +66,7 @@ func fetch(mc *minio.Client, bucket string) func(w http.ResponseWriter, r *http.
 			}
 		}
 
+		// TODO: add content type
 		obj, err := mc.GetObjectWithContext(r.Context(), bucket, o, minio.GetObjectOptions{})
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)

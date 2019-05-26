@@ -12,11 +12,20 @@ import (
 	"github.com/minio/minio-go"
 )
 
-func RunServer(mc *minio.Client, bucket, addr string) {
+func RunServer(httpClient *http.Client, mc *minio.Client, bucket, addr string) {
 
+	// TODO: use http.TimeoutHandler
 	mux := http.NewServeMux()
-	mux.HandleFunc("/", fetch(mc, bucket))
+	mux.HandleFunc("/", fetch(httpClient, mc, bucket))
 	mux.HandleFunc("/healthz", healthz)
+
+	// TODO: separate user (8080) and admin endpoint (8081)
+
+	// TODO: add USE, RED and golang metrics
+
+	// TODO: add profiling https://matoski.com/article/golang-profiling-flamegraphs/
+
+	// TODO: add debuging https://github.com/Microsoft/vscode-go/wiki/Debugging-Go-code-using-VS-Code
 
 	server := &http.Server{
 		Addr:         addr,

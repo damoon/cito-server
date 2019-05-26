@@ -11,6 +11,8 @@ func healthz(w http.ResponseWriter, r *http.Request) {
 
 	// TODO: check minio availability
 
+	// TODO: skip minio if last use happened after last healthcheck
+
 	w.WriteHeader(http.StatusOK)
 	_, err := w.Write([]byte("OK"))
 	if err != nil {

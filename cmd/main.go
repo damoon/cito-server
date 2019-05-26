@@ -3,6 +3,9 @@ package main
 import (
 	"flag"
 	"log"
+	"net"
+	"net/http"
+	"time"
 
 	"github.com/damoon/cito-server"
 	"github.com/minio/minio-go"
@@ -24,6 +27,20 @@ func main() {
 
 	// TODO: fail if config is missing
 
+	// TODO: use logrus and json logs
+
+	// TODO: add tracing
+
+	var httpClient = &http.Client{
+		Timeout: time.Second * 20,
+		Transport: &http.Transport{
+			Dial: (&net.Dialer{
+				Timeout: 5 * time.Second,
+			}).Dial,
+			TLSHandshakeTimeout: 5 * time.Second,
+		},
+	}
+
 	minioClient, err := minio.New(*endpoint, *accessKeyID, *secretAccessKey, *useSSL)
 	if err != nil {
 		log.Fatalln(err)
@@ -33,5 +50,5 @@ func main() {
 	if err != nil {
 		log.Fatalln(err)
 	}
-	cito.RunServer(minioClient, *bucket, *addr)
+	cito.RunServer(httpClient, minioClient, *bucket, *addr)
 }

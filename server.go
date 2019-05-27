@@ -13,15 +13,14 @@ import (
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
-func RunServer(httpClient *http.Client, mc *minio.Client, bucket, addr string) {
+func RunServer(httpClient *http.Client, mc *minio.Client, bucket, adminAddr, serviceAddr string) {
 
 	// TODO: use http.TimeoutHandler
-	mux := http.NewServeMux()
-	mux.Handle("/", http.TimeoutHandler(http.HandlerFunc(fetch(httpClient, mc, bucket)), 10*time.Second, ""))
-	mux.Handle("/healthz", http.TimeoutHandler(http.HandlerFunc(healthz), 10*time.Second, ""))
-	mux.Handle("/metrics", promhttp.Handler())
-
-	// TODO: separate user (8080) and admin endpoint (8081)
+	serviceMux := http.NewServeMux()
+	serviceMux.Handle("/", http.TimeoutHandler(http.HandlerFunc(fetch(httpClient, mc, bucket)), 30*time.Second, ""))
+	adminMux := http.NewServeMux()
+	adminMux.Handle("/healthz", http.TimeoutHandler(http.HandlerFunc(healthz), 10*time.Second, ""))
+	adminMux.Handle("/metrics", promhttp.Handler())
 
 	// TODO: add USE, RED and golang metrics
 
@@ -29,27 +28,44 @@ func RunServer(httpClient *http.Client, mc *minio.Client, bucket, addr string) {
 
 	// TODO: add debuging https://github.com/Microsoft/vscode-go/wiki/Debugging-Go-code-using-VS-Code
 
-	server := &http.Server{
-		Addr:         addr,
-		Handler:      mux,
-		ReadTimeout:  20 * time.Second,
-		WriteTimeout: 20 * time.Second,
+	serviceServer := &http.Server{
+		Addr:         serviceAddr,
+		Handler:      serviceMux,
+		ReadTimeout:  5 * time.Second,
+		WriteTimeout: 25 * time.Second,
 	}
+	adminServer := &http.Server{
+		Addr:         adminAddr,
+		Handler:      adminMux,
+		ReadTimeout:  5 * time.Second,
+		WriteTimeout: 25 * time.Second,
+	}
+
+	go func() {
+		err := serviceServer.ListenAndServe()
+		if err != nil && err != http.ErrServerClosed {
+			log.Fatal(err)
+		}
+	}()
+	go func() {
+		err := adminServer.ListenAndServe()
+		if err != nil && err != http.ErrServerClosed {
+			log.Fatal(err)
+		}
+	}()
 
 	// wait for an exit signal
 	stop := make(chan os.Signal, 2)
 	signal.Notify(stop, os.Interrupt, syscall.SIGTERM)
-	go func() {
-		<-stop
-		err := server.Shutdown(context.Background())
-		if err != nil {
-			log.Fatalf("server shutdown failed: %s\n", err)
-		}
-	}()
 
-	// serve requests
-	err := server.ListenAndServe()
-	if err != nil && err != http.ErrServerClosed {
-		log.Fatal(err)
+	<-stop
+	time.Sleep(30 * time.Second)
+	err := serviceServer.Shutdown(context.Background())
+	if err != nil {
+		log.Fatalf("server shutdown failed: %s\n", err)
+	}
+	err = adminServer.Shutdown(context.Background())
+	if err != nil {
+		log.Fatalf("server shutdown failed: %s\n", err)
 	}
 }

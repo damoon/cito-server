@@ -10,14 +10,16 @@ import (
 	"time"
 
 	"github.com/minio/minio-go"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
 func RunServer(httpClient *http.Client, mc *minio.Client, bucket, addr string) {
 
 	// TODO: use http.TimeoutHandler
 	mux := http.NewServeMux()
-	mux.HandleFunc("/", fetch(httpClient, mc, bucket))
-	mux.HandleFunc("/healthz", healthz)
+	mux.Handle("/", http.TimeoutHandler(http.HandlerFunc(fetch(httpClient, mc, bucket)), 10*time.Second, ""))
+	mux.Handle("/healthz", http.TimeoutHandler(http.HandlerFunc(healthz), 10*time.Second, ""))
+	mux.Handle("/metrics", promhttp.Handler())
 
 	// TODO: separate user (8080) and admin endpoint (8081)
 

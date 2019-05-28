@@ -13,7 +13,7 @@ import (
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
-func RunServer(httpClient *http.Client, mc *minio.Client, bucket, adminAddr, serviceAddr string) {
+func RunServer(httpClient *http.Client, mc *minio.Client, bucket, adminAddr, serviceAddr string, shutdownDelay time.Duration) {
 
 	// TODO: use http.TimeoutHandler
 	serviceMux := http.NewServeMux()
@@ -59,7 +59,7 @@ func RunServer(httpClient *http.Client, mc *minio.Client, bucket, adminAddr, ser
 	signal.Notify(stop, os.Interrupt, syscall.SIGTERM)
 
 	<-stop
-	time.Sleep(30 * time.Second)
+	time.Sleep(shutdownDelay)
 	err := serviceServer.Shutdown(context.Background())
 	if err != nil {
 		log.Fatalf("server shutdown failed: %s\n", err)

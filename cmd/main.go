@@ -49,9 +49,17 @@ func main() {
 		log.Fatalln(err)
 	}
 
-	err = cito.EnsureBucket(minioClient, *bucket, *location)
-	if err != nil {
-		log.Fatalln(err)
-	}
+	go func() {
+		for {
+			err = cito.EnsureBucket(minioClient, *bucket, *location)
+			if err != nil {
+				log.Printf("failed to ensure bucket exists: %v\n", err)
+				time.Sleep(5 * time.Second)
+				continue
+			}
+			return
+		}
+	}()
+
 	cito.RunServer(httpClient, minioClient, *bucket, *adminAddr, *serviceAddr, *shutdownDelay)
 }

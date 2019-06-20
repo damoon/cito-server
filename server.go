@@ -17,7 +17,7 @@ func RunServer(httpClient *http.Client, mc *minio.Client, bucket, adminAddr, ser
 	serviceMux := http.NewServeMux()
 	serviceMux.Handle("/", http.TimeoutHandler(http.HandlerFunc(fetch(httpClient, mc, bucket)), 30*time.Second, ""))
 	adminMux := http.NewServeMux()
-	adminMux.Handle("/healthz", http.TimeoutHandler(newHealth(mc, bucket), 10*time.Second, ""))
+	adminMux.Handle("/healthz", http.TimeoutHandler(newHealth(mc, bucket), 5*time.Second, ""))
 	adminMux.Handle("/metrics", promhttp.Handler())
 
 	// TODO: add USE, RED and golang metrics
@@ -30,13 +30,13 @@ func RunServer(httpClient *http.Client, mc *minio.Client, bucket, adminAddr, ser
 		Addr:         serviceAddr,
 		Handler:      serviceMux,
 		ReadTimeout:  5 * time.Second,
-		WriteTimeout: 25 * time.Second,
+		WriteTimeout: 5 * time.Second,
 	}
 	adminServer := &http.Server{
 		Addr:         adminAddr,
 		Handler:      adminMux,
 		ReadTimeout:  5 * time.Second,
-		WriteTimeout: 25 * time.Second,
+		WriteTimeout: 5 * time.Second,
 	}
 
 	go func() {

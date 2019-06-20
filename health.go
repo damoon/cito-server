@@ -4,6 +4,7 @@ import (
 	"context"
 	"log"
 	"net/http"
+	"time"
 
 	"github.com/minio/minio-go"
 )
@@ -17,7 +18,9 @@ func newHealth(mc *minio.Client, bucket string) http.HandlerFunc {
 
 			// TODO: skip minio if last use happened after last healthcheck
 
-			if minioUnavilable(r.Context(), mc, bucket) {
+			timeout, cancel := context.WithTimeout(r.Context(), 5*time.Second)
+			defer cancel()
+			if !minioAvailable(timeout, mc, bucket) {
 				w.WriteHeader(http.StatusServiceUnavailable)
 				return
 			}
@@ -26,7 +29,7 @@ func newHealth(mc *minio.Client, bucket string) http.HandlerFunc {
 		})
 }
 
-func minioUnavilable(ctx context.Context, mc *minio.Client, bucket string) bool {
+func minioAvailable(ctx context.Context, mc *minio.Client, bucket string) bool {
 	exists, err := objectExists(ctx, mc, bucket, "/")
 	if err != nil {
 		log.Printf("failed stat / in bucket %s: %s\n", bucket, err)

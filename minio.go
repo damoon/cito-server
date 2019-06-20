@@ -1,6 +1,7 @@
 package cito
 
 import (
+	"context"
 	"fmt"
 	"log"
 
@@ -26,7 +27,7 @@ func EnsureBucket(mc *minio.Client, bucket, location string) error {
 	return nil
 }
 
-func objectExists(mc *minio.Client, bucket, object string) (bool, error) {
+func objectExists(ctx context.Context, mc *minio.Client, bucket, object string) (bool, error) {
 	_, err := mc.StatObject(bucket, object, minio.StatObjectOptions{})
 	if err != nil {
 		errResponse := minio.ToErrorResponse(err)

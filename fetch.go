@@ -27,7 +27,7 @@ func fetch(hc *http.Client, mc *minio.Client, bucket string) func(w http.Respons
 
 		o := strings.TrimPrefix(r.URL.Path, "/")
 
-		exists, err := objectExists(mc, bucket, o)
+		exists, err := objectExists(r.Context(), mc, bucket, o)
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
 			log.Printf("s3 object %s lookup failed: %s\n", o, err)

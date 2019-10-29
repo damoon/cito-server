@@ -22,19 +22,35 @@ func EnsureBucket(mc *minio.Client, bucket, location string) error {
 	if err != nil {
 		return fmt.Errorf("failed to create bucket %s: %s", bucket, err)
 	}
-	log.Printf("created bucket %s\n", bucket)
+	log.Printf("bucket %s created\n", bucket)
 
 	return nil
 }
 
 func objectExists(ctx context.Context, mc *minio.Client, bucket, object string) (bool, error) {
-	_, err := mc.StatObject(bucket, object, minio.StatObjectOptions{})
-	if err != nil {
-		errResponse := minio.ToErrorResponse(err)
-		if errResponse.Code == "NoSuchKey" {
-			return false, nil
-		}
-		return false, err
+
+	type exists struct {
+		found bool
+		err   error
 	}
-	return true, nil
+	res := make(chan exists)
+
+	go func() {
+		_, err := mc.StatObject(bucket, object, minio.StatObjectOptions{})
+		if err != nil {
+			errResponse := minio.ToErrorResponse(err)
+			if errResponse.Code == "NoSuchKey" {
+				res <- exists{found: false}
+			}
+			res <- exists{err: err}
+		}
+		res <- exists{found: true}
+	}()
+
+	select {
+	case res := <-res:
+		return res.found, res.err
+	case <-ctx.Done():
+		return false, ctx.Err()
+	}
 }

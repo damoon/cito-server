@@ -1,0 +1,33 @@
+
+version: '3'
+services:
+  dev:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command:
+      - /main
+      - -endpoint=minio:9000
+      - -useSSL=false
+      - -accessKeyID=minio
+      - -secretAccessKey=minio123
+    ports:
+      - 8080:8080
+      - 8081:8081
+#  test:
+#    build:
+#      context: .
+#      dockerfile: Dockerfile.test
+#    command: ["./scripts/test_unit.sh"]
+#    environment:
+#      - GO_ENV=test
+#      - ATHENS_MINIO_ENDPOINT=minio:9000
+#      - ATHENS_MONGO_STORAGE_URL=mongodb://mongo:27017
+#      - TIMEOUT=20 # in case the mongo dependency takes longer to start up
+#      - ATHENS_STORAGE_TYPE=mongo
+  minio:
+    image: minio/minio:8445-9573ea5
+    command: server /data
+    environment:
+      MINIO_ACCESS_KEY: minio
+      MINIO_SECRET_KEY: minio123

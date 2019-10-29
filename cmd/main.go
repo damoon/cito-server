@@ -25,8 +25,7 @@ func main() {
 
 	flag.Parse()
 
-	log.Printf("service server listens on: %s\n", *serviceAddr)
-	log.Printf("admin server listens on: %s\n", *adminAddr)
+	log.Printf("service server listens on: %s\nadmin server listens on: %s\n", *serviceAddr, *adminAddr)
 
 	// TODO: fail if config is missing
 
@@ -34,20 +33,23 @@ func main() {
 
 	// TODO: add tracing
 
+	transport := &http.Transport{
+		Dial: (&net.Dialer{
+			Timeout: 5 * time.Second,
+		}).Dial,
+		TLSHandshakeTimeout: 5 * time.Second,
+	}
+
 	var httpClient = &http.Client{
-		Timeout: time.Second * 20,
-		Transport: &http.Transport{
-			Dial: (&net.Dialer{
-				Timeout: 5 * time.Second,
-			}).Dial,
-			TLSHandshakeTimeout: 5 * time.Second,
-		},
+		Timeout:   time.Second * 20,
+		Transport: transport,
 	}
 
 	minioClient, err := minio.New(*endpoint, *accessKeyID, *secretAccessKey, *useSSL)
 	if err != nil {
 		log.Fatalln(err)
 	}
+	minioClient.SetCustomTransport(transport)
 
 	go func() {
 		for {

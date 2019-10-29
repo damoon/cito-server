@@ -1,0 +1,6 @@
+{
+    "minimum-stability": "dev",
+    "require": {
+        "damoon/cito": "dev-master"
+    }
+}

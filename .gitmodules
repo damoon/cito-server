@@ -1,0 +1,3 @@
+[submodule "test/composer-home/vendor/damoon/cito"]
+	path = test/composer-home/vendor/damoon/cito
+	url = https://github.com/damoon/cito.git

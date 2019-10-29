@@ -1,1 +1,4 @@
-vendor
+/vendor
+/test/app/vendor
+/test/composer-home/cache
+/tmp

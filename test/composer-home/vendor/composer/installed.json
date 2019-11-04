@@ -1,29 +1,29 @@
 [
     {
         "name": "damoon/cito",
-        "version": "dev-master",
-        "version_normalized": "9999999-dev",
+        "version": "v0.0.1",
+        "version_normalized": "0.0.1.0",
         "source": {
             "type": "git",
             "url": "https://github.com/damoon/cito.git",
-            "reference": "78100169325bf26353f7e05a8549fb95f3514baf"
+            "reference": "1d62f2fd1df88696b9315a646ec0a8b2e66395c4"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/damoon/cito/zipball/78100169325bf26353f7e05a8549fb95f3514baf",
-            "reference": "78100169325bf26353f7e05a8549fb95f3514baf",
+            "url": "https://api.github.com/repos/damoon/cito/zipball/1d62f2fd1df88696b9315a646ec0a8b2e66395c4",
+            "reference": "1d62f2fd1df88696b9315a646ec0a8b2e66395c4",
             "shasum": ""
         },
         "require": {
             "composer-plugin-api": "^1.1",
             "hirak/prestissimo": "^0.3"
         },
-        "time": "2019-06-20T19:30:30+00:00",
+        "time": "2019-10-29T15:46:22+00:00",
         "type": "composer-plugin",
         "extra": {
             "class": "Damoon\\Cito\\Plugin"
         },
-        "installation-source": "source",
+        "installation-source": "dist",
         "autoload": {
             "psr-4": {
                 "Damoon\\Cito\\": "src/"

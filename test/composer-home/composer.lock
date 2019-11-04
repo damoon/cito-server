@@ -4,20 +4,20 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "902923d6e694bb930fffa1dccd77d95f",
+    "content-hash": "e738249c1e271fa4e67eff6c2d9e8e49",
     "packages": [
         {
             "name": "damoon/cito",
-            "version": "dev-master",
+            "version": "v0.0.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/damoon/cito.git",
-                "reference": "78100169325bf26353f7e05a8549fb95f3514baf"
+                "reference": "1d62f2fd1df88696b9315a646ec0a8b2e66395c4"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/damoon/cito/zipball/78100169325bf26353f7e05a8549fb95f3514baf",
-                "reference": "78100169325bf26353f7e05a8549fb95f3514baf",
+                "url": "https://api.github.com/repos/damoon/cito/zipball/1d62f2fd1df88696b9315a646ec0a8b2e66395c4",
+                "reference": "1d62f2fd1df88696b9315a646ec0a8b2e66395c4",
                 "shasum": ""
             },
             "require": {
@@ -49,7 +49,7 @@
                 "install",
                 "speedup"
             ],
-            "time": "2019-06-20T19:30:30+00:00"
+            "time": "2019-10-29T15:46:22+00:00"
         },
         {
             "name": "hirak/prestissimo",
@@ -105,10 +105,8 @@
     ],
     "packages-dev": [],
     "aliases": [],
-    "minimum-stability": "dev",
-    "stability-flags": {
-        "damoon/cito": 20
-    },
+    "minimum-stability": "stable",
+    "stability-flags": [],
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": [],

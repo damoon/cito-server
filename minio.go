@@ -27,6 +27,27 @@ func EnsureBucket(mc *minio.Client, bucket, location string) error {
 	return nil
 }
 
+func bucketExists(ctx context.Context, mc *minio.Client, bucket string) (bool, error) {
+
+	type bucketExists struct {
+		found bool
+		err   error
+	}
+	res := make(chan bucketExists)
+
+	go func() {
+		exists, err := mc.BucketExists(bucket)
+		res <- bucketExists{found: exists, err: err}
+	}()
+
+	select {
+	case res := <-res:
+		return res.found, res.err
+	case <-ctx.Done():
+		return false, ctx.Err()
+	}
+}
+
 func objectExists(ctx context.Context, mc *minio.Client, bucket, object string) (bool, error) {
 
 	type exists struct {

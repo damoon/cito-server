@@ -20,12 +20,6 @@ func RunServer(httpClient *http.Client, mc *minio.Client, bucket, adminAddr, ser
 	adminMux.Handle("/healthz", http.TimeoutHandler(newHealth(mc, bucket), 9*time.Second, ""))
 	adminMux.Handle("/metrics", promhttp.Handler())
 
-	// TODO: add USE, RED and golang metrics
-
-	// TODO: add profiling https://matoski.com/article/golang-profiling-flamegraphs/
-
-	// TODO: add debuging https://github.com/Microsoft/vscode-go/wiki/Debugging-Go-code-using-VS-Code
-
 	serviceServer := &http.Server{
 		Addr:         serviceAddr,
 		Handler:      serviceMux,

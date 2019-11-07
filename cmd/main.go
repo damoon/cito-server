@@ -15,7 +15,6 @@ func main() {
 
 	serviceAddr := flag.String("service-address", ":8080", "service server address, ':8080'")
 	adminAddr := flag.String("admin-address", ":8081", "admin server address, ':8081'")
-	shutdownDelay := flag.Duration("shutdown-delay", 30*time.Second, "time in seconds to allow ingress controllers to change routes")
 	endpoint := flag.String("endpoint", "", "s3 endpoint")
 	accessKeyID := flag.String("accessKeyID", "", "s3 accessKeyID")
 	secretAccessKey := flag.String("secretAccessKey", "", "s3 secretAccessKey")
@@ -58,5 +57,5 @@ func main() {
 		}
 	}()
 
-	cito.RunServer(httpClient, minioClient, *bucket, *adminAddr, *serviceAddr, *shutdownDelay)
+	cito.RunServer(httpClient, minioClient, *bucket, *adminAddr, *serviceAddr)
 }

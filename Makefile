@@ -20,7 +20,7 @@ test/docker/image: test/docker/Dockerfile
 	touch test/docker/image
 
 lint: ##@qa run linting for golang.
-	golangci-lint run ./...
+	golangci-lint run --enable-all ./...
 
 .PHONY: minio
 minio: ##@development Start minio server (port:9000, user:minio, secret:minio123).

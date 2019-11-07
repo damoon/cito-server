@@ -12,7 +12,6 @@ import (
 )
 
 func main() {
-
 	serviceAddr := flag.String("service-address", ":8080", "service server address, ':8080'")
 	adminAddr := flag.String("admin-address", ":8081", "admin server address, ':8081'")
 	endpoint := flag.String("endpoint", "", "s3 endpoint")

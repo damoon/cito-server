@@ -9,7 +9,6 @@ import (
 )
 
 func EnsureBucket(mc *minio.Client, bucket, location string) error {
-
 	exists, err := mc.BucketExists(bucket)
 	if err != nil {
 		return fmt.Errorf("failed to access bucket %s: %s", bucket, err)
@@ -28,7 +27,6 @@ func EnsureBucket(mc *minio.Client, bucket, location string) error {
 }
 
 func bucketExists(ctx context.Context, mc *minio.Client, bucket string) (bool, error) {
-
 	type bucketExists struct {
 		found bool
 		err   error
@@ -49,7 +47,6 @@ func bucketExists(ctx context.Context, mc *minio.Client, bucket string) (bool, e
 }
 
 func objectExists(ctx context.Context, mc *minio.Client, bucket, object string) (bool, error) {
-
 	type exists struct {
 		found bool
 		err   error

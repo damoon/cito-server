@@ -17,9 +17,8 @@ import (
 
 func fetch(hc *http.Client, mc *minio.Client, bucket string) func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
-
-		remoteUrl, path := extractRequest(r)
-		log.Printf("request for file: %s\n", remoteUrl)
+		remoteURL, path := extractRequest(r)
+		log.Printf("request for file: %s\n", remoteURL)
 
 		found, err := objectExists(r.Context(), mc, bucket, path)
 		if err != nil {
@@ -28,7 +27,7 @@ func fetch(hc *http.Client, mc *minio.Client, bucket string) func(w http.Respons
 			return
 		}
 		if !found {
-			err = archivePackage(r.Context(), hc, remoteUrl, mc, bucket, path)
+			err = archivePackage(r.Context(), hc, remoteURL, mc, bucket, path)
 			if err != nil {
 				w.WriteHeader(http.StatusInternalServerError)
 				log.Printf("storing package: %v", err)
@@ -37,13 +36,13 @@ func fetch(hc *http.Client, mc *minio.Client, bucket string) func(w http.Respons
 		}
 
 		// redirect to mino
-		signedUrl, err := mc.PresignedGetObject(bucket, path, 5*time.Minute, url.Values{})
+		signedURL, err := mc.PresignedGetObject(bucket, path, 5*time.Minute, url.Values{})
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
 			log.Printf("signing redirect to minio: %v", err)
 		}
 
-		http.Redirect(w, r, signedUrl.String(), http.StatusTemporaryRedirect)
+		http.Redirect(w, r, signedURL.String(), http.StatusTemporaryRedirect)
 	}
 }
 
@@ -61,7 +60,8 @@ func extractRequest(r *http.Request) (string, string) {
 	return url, minioPath
 }
 
-func archivePackage(ctx context.Context, hc *http.Client, remoteUrl string, mc *minio.Client, bucket, path string) error {
+func archivePackage(
+	ctx context.Context, hc *http.Client, remoteURL string, mc *minio.Client, bucket, path string) error {
 	tmp, err := ioutil.TempFile(os.TempDir(), "cito")
 	if err != nil {
 		return err
@@ -69,7 +69,7 @@ func archivePackage(ctx context.Context, hc *http.Client, remoteUrl string, mc *
 	defer os.Remove(tmp.Name())
 
 	// download
-	err = downloadFromRemote(ctx, hc, remoteUrl, tmp)
+	err = downloadFromRemote(ctx, hc, remoteURL, tmp)
 	if err != nil {
 		return fmt.Errorf("downloading package: %v", err)
 	}
@@ -88,7 +88,6 @@ func archivePackage(ctx context.Context, hc *http.Client, remoteUrl string, mc *
 }
 
 func downloadFromRemote(ctx context.Context, hc *http.Client, url string, w io.Writer) error {
-
 	if os.Getenv("DEBUG") == "1" {
 		log.Printf("downloading from remote %s", url)
 	}
@@ -104,7 +103,7 @@ func downloadFromRemote(ctx context.Context, hc *http.Client, url string, w io.W
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
-		return fmt.Errorf("recieved status code %d", resp.StatusCode)
+		return fmt.Errorf("received status code %d", resp.StatusCode)
 	}
 
 	_, err = io.Copy(w, resp.Body)

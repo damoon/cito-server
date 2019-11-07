@@ -9,12 +9,9 @@ import (
 
 	"github.com/damoon/cito-server"
 	"github.com/minio/minio-go"
-	"github.com/pkg/profile"
 )
 
 func main() {
-
-	defer profile.Start(profile.MemProfile, profile.ProfilePath(".")).Stop()
 
 	serviceAddr := flag.String("service-address", ":8080", "service server address, ':8080'")
 	adminAddr := flag.String("admin-address", ":8081", "admin server address, ':8081'")
